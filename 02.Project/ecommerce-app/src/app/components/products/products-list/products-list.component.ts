@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ProductResponse } from '../../../core/types/Products';
 import { ProductsCardComponent } from "../products-card/products-card.component";
 import { ProductsService } from '../../../core/services/products/products.service';
+import { PlaceholderComponent } from "../../shared/placeholder/placeholder.component";
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 
 @Component({
   selector: 'app-products-list',
-  imports: [ ProductsCardComponent],
+  imports: [ProductsCardComponent, PlaceholderComponent, MatPaginatorModule],
   templateUrl: './products-list.component.html',
   styleUrl: './products-list.component.css'
 })
@@ -27,5 +29,9 @@ export class ProductsListComponent implements OnInit{
         console.log(error);
       }
     })
+  }
+  onPageChange(event: PageEvent){
+    console.log(event);
+    this.getProducts(event.pageIndex, event.pageSize);
   }
 }

@@ -14,11 +14,21 @@
 
 }
 @placeholder {
-    <p class="text-center">Cargando ...</p>
+    @for (item of productResponse.products; track $index) {
+        <app-placeholder></app-placeholder>
+    } 
 }
 @error {
 
 }
 
 
+</div>
+<div class="w-full">
+    <mat-paginator
+        [length]="productResponse.pagination.totalResults"
+        [pageSize]="16"
+        [pageSizeOptions]="[16,32,64]"
+        (page)="onPageChange($event)"
+    ></mat-paginator>
 </div>
