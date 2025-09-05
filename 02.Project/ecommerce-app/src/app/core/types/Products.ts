@@ -6,7 +6,7 @@ export type Product = {
   price: number;
   offer: number;
   stock: number;
-  imagesUrl: string;
+  imageUrl: string;
   category: Category;
 };
 export type ProductResponse = {
