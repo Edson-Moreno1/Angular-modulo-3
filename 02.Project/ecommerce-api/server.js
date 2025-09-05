@@ -6,6 +6,7 @@ import logger from './src/middlewares/logger.js';
 import errorHandler from './src/middlewares/errorHandler.js';
 import setupGlobalErrorHandlers from './src/middlewares/globalErrorHandler.js';
 import cors from 'cors';
+import initializeData from './src/config/initializeData.js';
 
 dotenv.config();
 
@@ -40,6 +41,10 @@ app.use((req, res) => {
   });
 });
 
+if (process.env.INITIAL_DATA === "development") {
+  console.log("Development environment, creating mocking data...");
+  initializeData();
+}
 
 app.use(errorHandler);
 
