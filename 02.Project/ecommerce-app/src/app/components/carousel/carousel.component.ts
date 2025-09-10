@@ -40,6 +40,22 @@ export class CarouselComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['images'] && !changes['images'].firstChange){
+      this.currentIndex = 0;
+      this.resetLoadedStates();
+      this.loadImage(this.currentIndex);
+    }
+    if (changes['autoplay'] && changes['autoplay'].firstChange) {
+      if (changes['autoplay'].currentValue) {
+        this.startAutoPlay();
+      }else{
+        this.stopAutoPlay();
+      }
+    }
+    if (changes['interval'] && !changes['interval'].firstChange && this.autoPlay) {
+      this.stopAutoPlay();
+      this.startAutoPlay();
+    }
 
   }
   ngOnDestroy(): void {
