@@ -25,6 +25,7 @@ export class CarouselComponent implements OnInit, OnChanges, OnDestroy {
     { src: 'images/fruta.jpg', loaded: false, loading: false, alt: '' },
     { src: 'images/silksong.jpg', loaded: false, loading: false, alt: '' },
   ];
+
   @Input() autoPlay: boolean = true;
   @Input() showIndicators: boolean = true;
   @Input() showControls: boolean = true;
@@ -37,29 +38,37 @@ export class CarouselComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.loadImage(0);
     if (this.autoPlay) {
+      this.startAutoPlay();
     }
   }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['images'] && !changes['images'].firstChange){
+    console.log('cambios en la configuracion del carousel', changes);
+    
+    if (changes['images'] && !changes['images'].firstChange) {
       this.currentIndex = 0;
       this.resetLoadedStates();
       this.loadImage(this.currentIndex);
     }
-    if (changes['autoplay'] && changes['autoplay'].firstChange) {
-      if (changes['autoplay'].currentValue) {
+    
+    if (changes['autoPlay'] && !changes['autoPlay'].firstChange) {
+      if (changes['autoPlay'].currentValue) {
         this.startAutoPlay();
-      }else{
+      } else {
         this.stopAutoPlay();
       }
     }
+    
     if (changes['interval'] && !changes['interval'].firstChange && this.autoPlay) {
       this.stopAutoPlay();
       this.startAutoPlay();
     }
-
   }
   ngOnDestroy(): void {
+    console.log('Componente destruido')
+    this.isDestroyed = true;
     this.stopAutoPlay();
+    this.cancelPendingImagesLoads()
   }
 
   loadImage(index: number) {
@@ -69,57 +78,60 @@ export class CarouselComponent implements OnInit, OnChanges, OnDestroy {
     if (this.images[index].loaded) {
       return;
     }
-
     this.images[index].loading = true;
-
     const img = new Image();
-    //<img src='' alt=''>
     img.onload = () => {
-      console.log(`imagen en la posicion ${index}`);
+      console.log(`Imagen ${index + 1} cargada exitosamente`);
       setTimeout(() => {
-        this.images[index].loading = false;
         this.images[index].loaded = true;
+        this.images[index].loading = false;
       }, 1000);
-      img.src = this.images[index].src;
     };
+    img.src = this.images[index].src;
   }
-
-  startAutoPlay(){
-    if (this.autoPlay || !this.isDestroyed) {
-      this.autoPlayInterval = window.setInterval(()=>{
+  private startAutoPlay() {
+    if (this.autoPlay && !this.isDestroyed) {
+      this.autoPlayInterval = window.setInterval(() => {
         console.log(this.currentIndex)
         this.nextImage();
-      }, this.interval)
+      }, this.interval);
     }
   }
-  nextImage(){
-    this.currentIndex = (this.currentIndex + 1 ) % this.images.length;
-    this.loadImage(this.currentIndex);
-    const nextIndex = (this.currentIndex + 1) % this.images.length;
-    this.loadImage(nextIndex);
-  }
-  prevImage(){
-    this.currentIndex = (this.currentIndex - 1 ) % this.images.length;
-    this.loadImage(this.currentIndex);
-    const nextIndex = (this.currentIndex - 1) % this.images.length;
-    this.loadImage(nextIndex);
-  }
 
-  stopAutoPlay(){
+  private stopAutoPlay() {
     if (this.autoPlayInterval) {
       clearInterval(this.autoPlayInterval);
       this.autoPlayInterval = undefined;
     }
   }
-  resetLoadedStates(){
-    this.images.forEach(img=>{
-      img.loaded = false;
-      img.loading = false;
-    })
+
+  nextImage() {
+    this.currentIndex = (this.currentIndex + 1) % this.images.length;
+    this.loadImage(this.currentIndex);
+
+    const nextIndex = (this.currentIndex + 1) % this.images.length;
+    this.loadImage(nextIndex);
   }
-  cancelPendingImagesLoaded(){
-    this.images.forEach(img=>{
-      img.loading = false;
-    })
+  prevImage() {
+    this.currentIndex =
+      this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
+    this.loadImage(this.currentIndex);
+
+    const prevIndex =
+      this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
+    this.loadImage(prevIndex);
   }
+
+  private resetLoadedStates() {
+    this.images.forEach((image) => {
+      image.loaded = false;
+      image.loading = false;
+    });
+  }
+  private cancelPendingImagesLoads() {
+    this.images.forEach((image) => {
+      image.loading = false;
+    });
+  }
+
 }
