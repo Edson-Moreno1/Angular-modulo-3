@@ -37,7 +37,10 @@ export class RegisterComponent {
   ) {
     this.form = this.fb.nonNullable.group({
       displayName: this.fb.nonNullable.control('', [Validators.required]),
-      email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+      email: this.fb.nonNullable.control(
+        '',
+        [Validators.required, Validators.email]
+      ),
       password: this.fb.nonNullable.control('', [Validators.required, passwordStrength(6)]),
       confirmar: this.fb.nonNullable.control('', [Validators.required]),
       terminos: this.fb.nonNullable.control(false, [Validators.requiredTrue]),
@@ -47,17 +50,22 @@ export class RegisterComponent {
   err(ctrl: keyof RegisterForm['controls']): string {
     const c = this.form.get(ctrl as string);
     if (!c || !(c.touched || c.dirty) || c.valid) return '';
-    if (c.errors?.['required']) return 'Este campo es obligatorio';
-    if (c.errors?.['email']) return 'Ingresa un correo válido';
-    if (c.errors?.['minLengthPwd']) return 'La contraseña debe tener al menos 6 caracteres';
-    if (c.errors?.['digitRequired']) return 'La contraseña debe incluir al menos un número';
-    if (c.errors?.['requiredTrue']) return 'Debes aceptar los términos y condiciones';
-    return 'Revisa este campo';
+    if (c.errors?.['required']) return 'Este campo es obligatorio.';
+    if (c.errors?.['email']) return 'Ingresa un correo válido.';
+    if (c.errors?.['minLengthPwd']) return `La contraseña debe tener al menos 6 caracteres.`;
+    if (c.errors?.['digitRequired']) return 'La contraseña debe incluir al menos un número.';
+    if (c.errors?.['requiredTrue']) return 'Debes aceptar los términos.';
+    return 'Revisa este campo.';
   }
 
   groupErr(key: string): string {
     const g = this.form;
-    return (g.touched || g.dirty) && g.errors?.[key] ? 'Las contraseñas no coinciden' : '';
+    return (g.touched || g.dirty) && g.errors?.[key] ? 'Las contraseñas no coinciden.' : '';
+  }
+
+  private showBanner(kind: 'ok' | 'error', text: string) {
+    this.bannerKind = kind;
+    this.bannerText = text;
   }
 
   submit() {
@@ -69,13 +77,13 @@ export class RegisterComponent {
     this.auth.register({ displayName, email, password }).subscribe({
       next: () => {
         this.loading = false;
-        //setTimeout(() => this.router.navigateByUrl('auth/login'), 1200);
+        this.showBanner('ok', 'Registro exitoso. Ahora inicia sesión.');
+        setTimeout(() => this.router.navigateByUrl('/auth/login'), 1200);
       },
       error: (e: Error) => {
         this.loading = false;
-        console.log(e.message);
+        this.showBanner('error', e.message || 'No se pudo completar el registro.');
       }
-    })
+    });
   }
-
 }
